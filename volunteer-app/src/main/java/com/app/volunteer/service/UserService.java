@@ -2,8 +2,11 @@ package com.app.volunteer.service;
 
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 
+import com.app.volunteer.config.Constraints;
 import com.app.volunteer.dto.UserDataDTO;
+import com.app.volunteer.dto.account.VolunteerInfo;
 import com.app.volunteer.exception.CustomException;
 import com.app.volunteer.model.UserRole;
 import com.app.volunteer.model.Users;
@@ -13,12 +16,15 @@ import com.app.volunteer.repository.VolunteerRepository;
 import com.app.volunteer.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,8 +39,8 @@ public class UserService {
   private final JwtTokenProvider jwtTokenProvider;
   private final AuthenticationManager authenticationManager;
   private final VolunteerRepository volunteerRepository;
-
   private final ModelMapper modelMapper;
+  private final RestTemplate restTemplate;
 
   public String signin(String email, String password) {
     try {
@@ -59,6 +65,7 @@ public class UserService {
     }
   }
 
+  @Transactional
   public String signupWithVolunteer(UserDataDTO dataDTO) {
     Users appUser =  modelMapper.map(dataDTO, Users.class);
 
@@ -75,7 +82,15 @@ public class UserService {
       volunteer.setMothersName(dataDTO.getMothersName());
       volunteer.setDescription(dataDTO.getDescription());
       volunteer.setUsers(users);
-      volunteerRepository.save(volunteer);
+      Volunteer volunteer1 = volunteerRepository.save(volunteer);
+
+      HttpHeaders headers = new HttpHeaders();
+      VolunteerInfo volunteerInfo = new VolunteerInfo();
+      volunteerInfo.setVolunteerId(volunteer1.getId());
+
+      Boolean acCreatedAccount = restTemplate.postForObject(Constraints.ACCOUNT_URL + "/api/account/register/" + volunteer1.getId(), null, Boolean.class);
+      Boolean acCreatedLibrary = restTemplate.postForObject(Constraints.LIBRARY_URL + "/api/library/register/" + volunteer1.getId(), null, Boolean.class);
+
       return jwtTokenProvider.createToken(appUser.getEmail(), appUser);
     } else {
       throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);

@@ -41,7 +41,7 @@ public class BookResource {
         return bookService.findAll();
     }
 
-    @GetMapping("/books")
+    @GetMapping("/books-by-volunteer")
     public List<Book> getAllBooksByVolunteerId(@RequestParam("volunteerId") Long volunteerId) {
         log.debug("REST request to get all Books");
         return bookService.findAllByVolunteerId(volunteerId);

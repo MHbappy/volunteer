@@ -63,7 +63,6 @@ public class VolunteerResource {
         return volunteerService.findByUserId(httpServletRequest);
     }
 
-
     @GetMapping("/volunteers/{id}")
     public ResponseEntity<Volunteer> getVolunteer(@PathVariable Long id) {
         log.debug("REST request to get Volunteer : {}", id);
