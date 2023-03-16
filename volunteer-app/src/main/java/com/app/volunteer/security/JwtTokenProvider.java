@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -76,6 +77,14 @@ public class JwtTokenProvider {
       return bearerToken.substring(7);
     }
     return null;
+  }
+
+  public Boolean isRoleExist(String role){
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role))) {
+      return true;
+    }
+    return false;
   }
 
   public boolean validateToken(String token) {

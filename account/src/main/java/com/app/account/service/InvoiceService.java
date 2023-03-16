@@ -1,6 +1,7 @@
 package com.app.account.service;
 
 import com.app.account.dto.PromotionStatus;
+import com.app.account.enumuration.InvoiceFor;
 import com.app.account.enumuration.InvoiceType;
 import com.app.account.model.Invoice;
 import com.app.account.model.VolunteerInfo;
@@ -27,9 +28,31 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final VolunteerInfoRepository volunteerInfoRepository;
 
-    
+
+    @Transactional
     public Invoice save(Invoice invoice) {
         log.debug("Request to save Invoice : {}", invoice);
+        VolunteerInfo volunteerInfo = null;
+
+        //Get volunteer from volunteer Id
+        if (invoice.getVolunteerInfo() != null && invoice.getVolunteerInfo().getVolunteerId() != null){
+            volunteerInfo = volunteerInfoRepository.findByVolunteerId(invoice.getVolunteerInfo().getVolunteerId());
+            invoice.setVolunteerInfo(volunteerInfo);
+        }
+
+        if (invoice.getVolunteerInfo().getVolunteerId() == null || invoice.getVolunteerInfo().getId().equals(0)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer not found");
+        }
+
+        //If exist invoice then no need to add this invoice again
+        if (volunteerInfo != null){
+            List<Invoice> invoiceList = invoiceRepository.findAllByVolunteerInfoAndBookCourseId(volunteerInfo, invoice.getBookCourseId());
+            if (!invoiceList.isEmpty()){
+                return null;
+            }
+        }
+
+
         return invoiceRepository.save(invoice);
     }
 
@@ -45,41 +68,17 @@ public class InvoiceService {
         return invoiceRepository.save(invoice.get());
     }
 
-    public Boolean payment(Long invoiceId, Double amount) {
-        Optional<Invoice> invoice = invoiceRepository.findById(invoiceId);
+    public Boolean payment(String invoiceNo, Double amount) {
+        Optional<Invoice> invoice = invoiceRepository.findByInvoiceNo(invoiceNo);
         if (!invoice.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invoice not found");
         }
-
         if (!invoice.get().getAmount().equals(amount)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You have to exact amount");
         }
-
         invoice.get().setInvoiceType(InvoiceType.PAID);
         invoiceRepository.save(invoice.get());
         return true;
-    }
-
-    
-    public Optional<Invoice> partialUpdate(Invoice invoice) {
-        log.debug("Request to partially update Invoice : {}", invoice);
-
-        return invoiceRepository
-            .findById(invoice.getId())
-            .map(existingInvoice -> {
-                if (invoice.getName() != null) {
-                    existingInvoice.setName(invoice.getName());
-                }
-                if (invoice.getAmount() != null) {
-                    existingInvoice.setAmount(invoice.getAmount());
-                }
-                if (invoice.getInvoiceType() != null) {
-                    existingInvoice.setInvoiceType(invoice.getInvoiceType());
-                }
-
-                return existingInvoice;
-            })
-            .map(invoiceRepository::save);
     }
 
     
@@ -100,6 +99,43 @@ public class InvoiceService {
         if (allVolunteerInfoByVolunteerInfo == null){
             return new ArrayList<>();
         }
+        return allVolunteerInfoByVolunteerInfo;
+    }
+
+
+    @Transactional(readOnly = true)
+    public Boolean isEligibleForGraduate(Long volunteerId) {
+        log.debug("Request to get all Invoices");
+        VolunteerInfo volunteerInfo = volunteerInfoRepository.findByVolunteerId(volunteerId);
+        if (volunteerInfo == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer not found");
+        }
+        List<Invoice> allVolunteerInfoByVolunteerInfo = invoiceRepository.findAllByVolunteerInfoAndInvoiceFor(volunteerInfo, InvoiceFor.COURSE);
+        if (allVolunteerInfoByVolunteerInfo.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You didn't get any course");
+        }
+
+        List<Invoice> allVolunteerInfoByVolunteerInfoInvoiceListForCourse = invoiceRepository.findAllByVolunteerInfoAndInvoiceForAndInvoiceType(volunteerInfo, InvoiceFor.COURSE, InvoiceType.PENDING);
+        if (!allVolunteerInfoByVolunteerInfoInvoiceListForCourse.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You have to pay for your course");
+        }
+
+        List<Invoice> allVolunteerInfoByVolunteerInfoInvoiceListForBook = invoiceRepository.findAllByVolunteerInfoAndInvoiceForAndInvoiceType(volunteerInfo, InvoiceFor.BOOK, InvoiceType.PENDING);
+        if (!allVolunteerInfoByVolunteerInfoInvoiceListForBook.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You have to pay fine for book");
+        }
+        return true;
+    }
+
+    @Transactional(readOnly = true)
+    public Invoice findInvoiceByVolunteerIdAndInvoiceNo(Long volunteerId, String invoiceNo) {
+        log.debug("Request to get all Invoices");
+        VolunteerInfo volunteerInfo = volunteerInfoRepository.findByVolunteerId(volunteerId);
+        if (volunteerInfo == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer not found");
+        }
+        Invoice allVolunteerInfoByVolunteerInfo = invoiceRepository.findAllByVolunteerInfoAndInvoiceNo(volunteerInfo, invoiceNo);
+
         return allVolunteerInfoByVolunteerInfo;
     }
 

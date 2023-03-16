@@ -33,7 +33,8 @@ public class VolunteerApplication implements CommandLineRunner {
 
 	@Bean
 	public RestTemplate restTemplate(){
-		return new RestTemplate();
+		RestTemplate restTemplate = new RestTemplate();
+		return restTemplate;
 	}
 
 
@@ -45,7 +46,7 @@ public class VolunteerApplication implements CommandLineRunner {
 		try {
 			volunteer = userService.search("volunteer@localhost");
 			librarian = userService.search("librarian@localhost");
-			account = userService.search("account@localhost");
+			account = userService.search("library@localhost");
 
 		}catch (Exception ex){
 			ex.printStackTrace();
@@ -72,7 +73,7 @@ public class VolunteerApplication implements CommandLineRunner {
 		if (account == null){
 			Users client = new Users();
 			client.setPassword("123456");
-			client.setEmail("account@localhost");
+			client.setEmail("library@localhost");
 			client.setAppUserRoles(new ArrayList<UserRole>(Arrays.asList(UserRole.ACCOUNT)));
 			userService.signup(client);
 		}

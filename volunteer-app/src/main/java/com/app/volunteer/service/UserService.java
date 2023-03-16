@@ -6,7 +6,7 @@ import javax.transaction.Transactional;
 
 import com.app.volunteer.config.Constraints;
 import com.app.volunteer.dto.UserDataDTO;
-import com.app.volunteer.dto.account.VolunteerInfo;
+import com.app.volunteer.dto.VolunteerInfo;
 import com.app.volunteer.exception.CustomException;
 import com.app.volunteer.model.UserRole;
 import com.app.volunteer.model.Users;
@@ -15,16 +15,18 @@ import com.app.volunteer.repository.UserRepository;
 import com.app.volunteer.repository.VolunteerRepository;
 import com.app.volunteer.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,7 @@ import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
   private final UserRepository userRepository;
@@ -84,12 +87,13 @@ public class UserService {
       volunteer.setUsers(users);
       Volunteer volunteer1 = volunteerRepository.save(volunteer);
 
-      HttpHeaders headers = new HttpHeaders();
       VolunteerInfo volunteerInfo = new VolunteerInfo();
       volunteerInfo.setVolunteerId(volunteer1.getId());
 
       Boolean acCreatedAccount = restTemplate.postForObject(Constraints.ACCOUNT_URL + "/api/account/register/" + volunteer1.getId(), null, Boolean.class);
       Boolean acCreatedLibrary = restTemplate.postForObject(Constraints.LIBRARY_URL + "/api/library/register/" + volunteer1.getId(), null, Boolean.class);
+      log.info("created acoount on library server " + acCreatedAccount);
+      log.info("created acoount on library server " + acCreatedLibrary);
 
       return jwtTokenProvider.createToken(appUser.getEmail(), appUser);
     } else {
@@ -118,6 +122,18 @@ public class UserService {
   public Users whoami(HttpServletRequest req) {
     return userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
   }
+
+  public Volunteer getVolunteerByCurrentUser(){
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String currentPrincipalName = authentication.getName();
+    Users users = userRepository.findByEmail(currentPrincipalName);
+    Volunteer volunteer = volunteerRepository.findByUsers_Id(users.getId());
+    if (volunteer == null){
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This is have no volunteer account");
+    }
+    return volunteer;
+  }
+
 
   public String refresh(String email) {
     return jwtTokenProvider.createToken(email, userRepository.findByEmail(email));

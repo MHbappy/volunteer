@@ -1,5 +1,6 @@
 package com.app.library.model;
 
+import com.app.library.enumuration.BookStatus;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -18,9 +19,14 @@ public class Book {
     @Column(name = "name")
     private String name;
 
+    private String isbn;
+
     private LocalDateTime borrowedDateTime;
 
     private LocalDateTime returnDateTIme;
+
+    @Enumerated(EnumType.STRING)
+    private BookStatus bookStatus;
 
     @ManyToOne
     private VolunteerInfo volunteerInfo;

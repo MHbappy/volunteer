@@ -19,6 +19,8 @@ public class Invoice implements Serializable {
     @Column(name = "id")
     private Long id;
 
+    String invoiceNo;
+
     @Column(name = "name")
     private String name;
 
@@ -33,7 +35,7 @@ public class Invoice implements Serializable {
     @Column(name = "invoice_for")
     private InvoiceFor invoiceFor;
 
-    private Long bookOrCourseId;
+    private Long bookCourseId;
 
     @ManyToOne
     private VolunteerInfo volunteerInfo;

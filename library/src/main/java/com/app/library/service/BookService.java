@@ -27,6 +27,16 @@ public class BookService {
     private final VolunteerInfoRepository volunteerInfoRepository;
 
     public Book save(Book book) {
+        VolunteerInfo volunteerInfo = null;
+        if (book.getVolunteerInfo() != null && book.getVolunteerInfo().getVolunteerId() != null){
+            volunteerInfo = volunteerInfoRepository.findByVolunteerId(book.getVolunteerInfo().getVolunteerId());
+            book.setVolunteerInfo(volunteerInfo);
+        }
+
+        if (volunteerInfo == null || book.getVolunteerInfo() == null || book.getVolunteerInfo().getVolunteerId() == null || book.getVolunteerInfo().getId().equals(0)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer not found");
+        }
+
         log.debug("Request to save Book : {}", book);
         return bookRepository.save(book);
     }

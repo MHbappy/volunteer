@@ -35,33 +35,7 @@ public class InvoiceResource {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A new invoice cannot already have an ID");
         }
         Invoice result = invoiceService.save(invoice);
-        return ResponseEntity
-            .created(new URI("/api/invoices/" + result.getId()))
-            .body(result);
-    }
-
-    @PostMapping("/payment")
-    public ResponseEntity<Boolean> payment(@RequestParam("invoiceId") Long invoiceId, @RequestParam("amount") Double amount) throws URISyntaxException {
-        log.debug("REST request to save Invoice : {}", invoiceId);
-        return ResponseEntity.ok(invoiceService.payment(invoiceId, amount));
-    }
-
-    @PutMapping("/invoices/{id}")
-    public ResponseEntity<Invoice> updateInvoiceStatus(@PathVariable(value = "id", required = false) final Long id, @RequestParam("invoiceType") InvoiceType invoiceType)
-            throws URISyntaxException {
-        if (!invoiceRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Entity not found");
-        }
-        Invoice result = invoiceService.updateInvoiceStatus(id, invoiceType);
-        return ResponseEntity
-                .ok()
-                .body(result);
-    }
-
-    @GetMapping("/invoices")
-    public List<Invoice> getAllInvoices() {
-        log.debug("REST request to get all Invoices");
-        return invoiceService.findAll();
+        return ResponseEntity.ok(result);
     }
 
 
@@ -69,6 +43,32 @@ public class InvoiceResource {
     public List<Invoice> getAllUserInvoices(@RequestParam("volunteerId") Long volunteerId) {
         log.debug("REST request to get all Invoices");
         return invoiceService.findAllInvoiceByVolunteerId(volunteerId);
+    }
+
+    @GetMapping("/graduate-eligibility")
+    public Boolean getStudentGraduateEligibility(@RequestParam("volunteerId") Long volunteerId) {
+        log.debug("REST request to get all Invoices");
+        return invoiceService.isEligibleForGraduate(volunteerId);
+    }
+
+
+
+    @GetMapping("/volunteer-invoices-by-invoice-id-and-volunteer-id")
+    public Invoice getAllUserInvoicesByInvoiceIdAndVolunteerId(@RequestParam("volunteerId") Long volunteerId, @RequestParam("invoiceNo") String invoiceNo) {
+        log.debug("REST request to get all Invoices");
+        return invoiceService.findInvoiceByVolunteerIdAndInvoiceNo(volunteerId, invoiceNo);
+    }
+
+    @PostMapping("/payment")
+    public ResponseEntity<Boolean> payment(@RequestParam("invoiceNo") String invoiceNo, @RequestParam("amount") Double amount) {
+        log.debug("REST request to save Invoice : {}", invoiceNo);
+        return ResponseEntity.ok(invoiceService.payment(invoiceNo, amount));
+    }
+
+    @GetMapping("/invoices")
+    public List<Invoice> getAllInvoices() {
+        log.debug("REST request to get all Invoices");
+        return invoiceService.findAll();
     }
 
     @GetMapping("/invoices/{id}")
