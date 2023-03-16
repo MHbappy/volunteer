@@ -23,10 +23,11 @@ public class ScheduledGenerator {
     @Autowired
     private BookRepository bookRepository;
 
+    @Autowired
     private AccountRestService accountRestService;
 
-    @Async
-    @Scheduled(fixedRate = 5000)
+//    @Async
+//    @Scheduled(fixedRate = 5000)
     public void scheduleFixedRateTaskAsync() throws InterruptedException {
         System.out.println("Fixed rate task async - " + System.currentTimeMillis() / 1000);
         List<Book> bookList = bookRepository.getAllLateBook();
@@ -46,7 +47,6 @@ public class ScheduledGenerator {
             invoice.setVolunteerInfo(new VolunteerInfo(0l, invoice.getVolunteerInfo().getVolunteerId()));
             accountRestService.saveInvoice(invoice);
         }
-
     }
 
 }

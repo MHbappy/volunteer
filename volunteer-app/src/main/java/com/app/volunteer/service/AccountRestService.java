@@ -36,7 +36,7 @@ public class AccountRestService {
 
     public List<Invoice> getInvoiceListByVolunteerId(Long volunteerId){
         try {
-            Boolean isRoleAdmin = jwtTokenProvider.isRoleExist("ROLE_ADMIN");
+            Boolean isRoleAdmin = jwtTokenProvider.isRoleExist("ROLE_ACCOUNT");
             List<Invoice> invoice1 = new ArrayList<>();
             if (isRoleAdmin){
                 invoice1 = restTemplate.getForObject(Constraints.ACCOUNT_URL + "/api/invoices", List.class);
