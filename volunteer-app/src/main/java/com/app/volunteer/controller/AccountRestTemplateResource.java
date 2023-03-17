@@ -21,8 +21,7 @@ public class AccountRestTemplateResource {
 
     @GetMapping("/invoices")
     public List<Invoice> getAllInvoiceByVolunteer(){
-        Volunteer volunteer = userService.getVolunteerByCurrentUser();
-        return accountRestService.getInvoiceListByVolunteerId(volunteer.getId());
+        return accountRestService.getInvoiceListByVolunteerId();
     }
 
     @GetMapping("/invoicesByUserInvoiceNo")

@@ -54,20 +54,18 @@ public class BookRestService {
         }
     }
 
-
     public List<Book> getAllBooksByVolunteerId(){
-        Boolean isRoleAdmin = jwtTokenProvider.isRoleExist("ROLE_ADMIN");
+        Boolean isRoleLibrarian = jwtTokenProvider.isRoleExist("ROLE_LIBRARIAN");
+        List<Book> books = new ArrayList<>();
+        if (isRoleLibrarian){
+            return restTemplate.getForObject(Constraints.LIBRARY_URL + "/api/books", List.class);
+        }
+
         Volunteer volunteer = userService.getVolunteerByCurrentUser();
         if (volunteer == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer not found");
         }
-        List<Book> books = new ArrayList<>();
-        if (isRoleAdmin){
-            books = restTemplate.getForObject(Constraints.LIBRARY_URL + "/api/books", List.class);
-        }else {
-            books = restTemplate.getForObject(Constraints.LIBRARY_URL + "/api/books-by-volunteer?volunteerId="+volunteer.getId(), List.class);
-        }
-        return books;
+        return restTemplate.getForObject(Constraints.LIBRARY_URL + "/api/books-by-volunteer?volunteerId="+volunteer.getId(), List.class);
     }
 
 }

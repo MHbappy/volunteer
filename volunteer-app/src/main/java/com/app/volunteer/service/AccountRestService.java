@@ -2,6 +2,7 @@ package com.app.volunteer.service;
 
 import com.app.volunteer.config.Constraints;
 import com.app.volunteer.dto.account.Invoice;
+import com.app.volunteer.model.Volunteer;
 import com.app.volunteer.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.json.JsonParser;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class AccountRestService {
     private final RestTemplate restTemplate;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
     public Invoice saveInvoice(Invoice invoice){
         try {
@@ -34,14 +36,15 @@ public class AccountRestService {
     }
 
 
-    public List<Invoice> getInvoiceListByVolunteerId(Long volunteerId){
+    public List<Invoice> getInvoiceListByVolunteerId(){
         try {
-            Boolean isRoleAdmin = jwtTokenProvider.isRoleExist("ROLE_ACCOUNT");
+            Boolean isRoleAccount = jwtTokenProvider.isRoleExist("ROLE_ACCOUNT");
             List<Invoice> invoice1 = new ArrayList<>();
-            if (isRoleAdmin){
+            if (isRoleAccount){
                 invoice1 = restTemplate.getForObject(Constraints.ACCOUNT_URL + "/api/invoices", List.class);
             }else {
-                invoice1 = restTemplate.getForObject(Constraints.ACCOUNT_URL + "/api/volunteer-invoices?volunteerId="+volunteerId, List.class);
+                Volunteer volunteer = userService.getVolunteerByCurrentUser();
+                invoice1 = restTemplate.getForObject(Constraints.ACCOUNT_URL + "/api/volunteer-invoices?volunteerId="+volunteer.getId(), List.class);
             }
             return invoice1;
         }catch (HttpStatusCodeException ex){

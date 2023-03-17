@@ -38,7 +38,6 @@ public class InvoiceResource {
         return ResponseEntity.ok(result);
     }
 
-
     @GetMapping("/volunteer-invoices")
     public List<Invoice> getAllUserInvoices(@RequestParam("volunteerId") Long volunteerId) {
         log.debug("REST request to get all Invoices");
@@ -50,8 +49,6 @@ public class InvoiceResource {
         log.debug("REST request to get all Invoices");
         return invoiceService.isEligibleForGraduate(volunteerId);
     }
-
-
 
     @GetMapping("/volunteer-invoices-by-invoice-id-and-volunteer-id")
     public Invoice getAllUserInvoicesByInvoiceIdAndVolunteerId(@RequestParam("volunteerId") Long volunteerId, @RequestParam("invoiceNo") String invoiceNo) {
