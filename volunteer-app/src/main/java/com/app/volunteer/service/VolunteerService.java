@@ -15,9 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,11 +29,11 @@ public class VolunteerService {
     private final UserService userService;
     private final AccountRestService accountRestService;
 
-    public Volunteer save(Volunteer volunteer) {
-        log.debug("Request to save Volunteer : {}", volunteer);
-        return volunteerRepository.save(volunteer);
-    }
-
+    /**
+     * update own profile
+     * @param volunteer
+     * @return
+     */
     @Transactional
     public Volunteer update(Volunteer volunteer) {
         log.debug("Request to update Volunteer : {}", volunteer);
@@ -55,46 +53,14 @@ public class VolunteerService {
                 accountRestService.saveInvoice(invoice);
             }
         }
-
         return volunteer1;
     }
 
-    public Optional<Volunteer> partialUpdate(Volunteer volunteer) {
-        log.debug("Request to partially update Volunteer : {}", volunteer);
-
-        return volunteerRepository
-            .findById(volunteer.getId())
-            .map(existingVolunteer -> {
-                if (volunteer.getName() != null) {
-                    existingVolunteer.setName(volunteer.getName());
-                }
-                if (volunteer.getFathersName() != null) {
-                    existingVolunteer.setFathersName(volunteer.getFathersName());
-                }
-                if (volunteer.getMothersName() != null) {
-                    existingVolunteer.setMothersName(volunteer.getMothersName());
-                }
-                if (volunteer.getAddress() != null) {
-                    existingVolunteer.setAddress(volunteer.getAddress());
-                }
-                if (volunteer.getDescription() != null) {
-                    existingVolunteer.setDescription(volunteer.getDescription());
-                }
-                if (volunteer.getIsActive() != null) {
-                    existingVolunteer.setIsActive(volunteer.getIsActive());
-                }
-
-                return existingVolunteer;
-            })
-            .map(volunteerRepository::save);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Volunteer> findAll() {
-        log.debug("Request to get all Volunteers");
-        return volunteerRepository.findAll();
-    }
-
+    /**
+     * Get volunteer by userId
+     * @param httpServletRequest
+     * @return
+     */
     @Transactional(readOnly = true)
     public Volunteer findByUserId(HttpServletRequest httpServletRequest) {
         log.debug("Request to get all Volunteers");
@@ -107,14 +73,15 @@ public class VolunteerService {
         return volunteerRepository.findByUsers_Id(user.getId());
     }
 
+    /**
+     * get volunteer by id
+     * @param id
+     * @return
+     */
     @Transactional(readOnly = true)
     public Optional<Volunteer> findOne(Long id) {
         log.debug("Request to get Volunteer : {}", id);
         return volunteerRepository.findById(id);
     }
-    
-    public void delete(Long id) {
-        log.debug("Request to delete Volunteer : {}", id);
-        volunteerRepository.deleteById(id);
-    }
+
 }

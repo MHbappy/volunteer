@@ -17,6 +17,11 @@ public class VolunteerInfoResource {
     @Autowired
     private VolunteerInfoService volunteerInfoService;
 
+    /**
+     * register volunter on library server
+     * @param volunteerId
+     * @return boolean
+     */
     @PostMapping("/register/{volunteerId}")
     public ResponseEntity<Boolean> registerVolunteer(@PathVariable Long volunteerId){
         return ResponseEntity.ok(volunteerInfoService.registerVolunteer(volunteerId));

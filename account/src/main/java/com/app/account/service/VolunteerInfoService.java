@@ -14,6 +14,11 @@ public class VolunteerInfoService {
     @Autowired
     VolunteerInfoRepository volunteerInfoRepository;
 
+    /**
+     * register volunteer
+     * @param volunteerId
+     * @return boolean value
+     */
     public Boolean registerVolunteer(Long volunteerId){
         if (volunteerId == null || volunteerId ==0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer Id not valid");

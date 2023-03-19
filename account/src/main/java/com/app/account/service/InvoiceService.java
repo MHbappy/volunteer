@@ -1,6 +1,5 @@
 package com.app.account.service;
 
-import com.app.account.dto.PromotionStatus;
 import com.app.account.enumuration.InvoiceFor;
 import com.app.account.enumuration.InvoiceType;
 import com.app.account.model.Invoice;
@@ -28,7 +27,11 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final VolunteerInfoRepository volunteerInfoRepository;
 
-
+    /**
+     * Create a invoice
+     * @param invoice
+     * @return a invoice
+     */
     @Transactional
     public Invoice save(Invoice invoice) {
         log.debug("Request to save Invoice : {}", invoice);
@@ -40,6 +43,7 @@ public class InvoiceService {
             invoice.setVolunteerInfo(volunteerInfo);
         }
 
+        //if ther have not volunteer then it will throw a error with message
         if (invoice.getVolunteerInfo().getVolunteerId() == null || invoice.getVolunteerInfo().getId().equals(0)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer not found");
         }
@@ -51,23 +55,15 @@ public class InvoiceService {
                 return null;
             }
         }
-
-
         return invoiceRepository.save(invoice);
     }
 
-    
-    public Invoice updateInvoiceStatus(Long invoiceId, InvoiceType invoiceType) {
-        log.debug("Request to update Invoice : {}", invoiceId);
-
-        Optional<Invoice> invoice = invoiceRepository.findById(invoiceId);
-        if (!invoice.isPresent()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invoice not found");
-        }
-        invoice.get().setInvoiceType(invoiceType);
-        return invoiceRepository.save(invoice.get());
-    }
-
+    /**
+     * pay to a invoice by invoiceNo and amount
+     * @param invoiceNo
+     * @param amount
+     * @return a boolean value
+     */
     public Boolean payment(String invoiceNo, Double amount) {
         Optional<Invoice> invoice = invoiceRepository.findByInvoiceNo(invoiceNo);
         if (!invoice.isPresent()) {
@@ -81,13 +77,21 @@ public class InvoiceService {
         return true;
     }
 
-    
+    /**
+     * Get all invoice
+     * @return list of invoice
+     */
     @Transactional(readOnly = true)
     public List<Invoice> findAll() {
         log.debug("Request to get all Invoices");
         return invoiceRepository.findAll();
     }
 
+    /**
+     * Get all invoice by volunteerId
+     * @param volunteerId
+     * @return List Of Invoice
+     */
     @Transactional(readOnly = true)
     public List<Invoice> findAllInvoiceByVolunteerId(Long volunteerId) {
         log.debug("Request to get all Invoices");
@@ -102,7 +106,11 @@ public class InvoiceService {
         return allVolunteerInfoByVolunteerInfo;
     }
 
-
+    /**
+     * Get the eligibility for graduate
+     * @param volunteerId
+     * @return a boolean value
+     */
     @Transactional(readOnly = true)
     public Boolean isEligibleForGraduate(Long volunteerId) {
         log.debug("Request to get all Invoices");
@@ -110,16 +118,20 @@ public class InvoiceService {
         if (volunteerInfo == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer not found");
         }
+
+        //Get all invoice by the course type. If he/she not get any course then a error will be throw
         List<Invoice> allVolunteerInfoByVolunteerInfo = invoiceRepository.findAllByVolunteerInfoAndInvoiceFor(volunteerInfo, InvoiceFor.COURSE);
         if (allVolunteerInfoByVolunteerInfo.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You didn't get any course");
         }
 
+        //If any pending invoice for course then throw a error
         List<Invoice> allVolunteerInfoByVolunteerInfoInvoiceListForCourse = invoiceRepository.findAllByVolunteerInfoAndInvoiceForAndInvoiceType(volunteerInfo, InvoiceFor.COURSE, InvoiceType.PENDING);
         if (!allVolunteerInfoByVolunteerInfoInvoiceListForCourse.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You have to pay for your course");
         }
 
+        //If any pending invoice for book then throw a error
         List<Invoice> allVolunteerInfoByVolunteerInfoInvoiceListForBook = invoiceRepository.findAllByVolunteerInfoAndInvoiceForAndInvoiceType(volunteerInfo, InvoiceFor.BOOK, InvoiceType.PENDING);
         if (!allVolunteerInfoByVolunteerInfoInvoiceListForBook.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You have to pay fine for book");
@@ -127,6 +139,12 @@ public class InvoiceService {
         return true;
     }
 
+    /**
+     *  find invoice
+     * @param volunteerId
+     * @param invoiceNo
+     * @return a invoice
+     */
     @Transactional(readOnly = true)
     public Invoice findInvoiceByVolunteerIdAndInvoiceNo(Long volunteerId, String invoiceNo) {
         log.debug("Request to get all Invoices");
@@ -139,16 +157,14 @@ public class InvoiceService {
         return allVolunteerInfoByVolunteerInfo;
     }
 
-    
+    /**
+     * find invoice
+     * @param id
+     * @return a invoice
+     */
     @Transactional(readOnly = true)
     public Optional<Invoice> findOne(Long id) {
         log.debug("Request to get Invoice : {}", id);
         return invoiceRepository.findById(id);
-    }
-
-    
-    public void delete(Long id) {
-        log.debug("Request to delete Invoice : {}", id);
-        invoiceRepository.deleteById(id);
     }
 }

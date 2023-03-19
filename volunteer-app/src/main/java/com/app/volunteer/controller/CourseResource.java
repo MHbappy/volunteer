@@ -5,12 +5,10 @@ import com.app.volunteer.repository.CourseRepository;
 import com.app.volunteer.service.CourseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -32,6 +30,12 @@ public class CourseResource {
         this.courseRepository = courseRepository;
     }
 
+    /**
+     * save a course
+     * @param course
+     * @return single course
+     * @throws URISyntaxException
+     */
     @PostMapping("/courses")
     public ResponseEntity<Course> createCourse(@RequestBody Course course) throws URISyntaxException {
         log.debug("REST request to save Course : {}", course);
@@ -45,6 +49,13 @@ public class CourseResource {
     }
 
 
+    /**
+     * update a course
+     * @param id
+     * @param course
+     * @return
+     * @throws URISyntaxException
+     */
     @PutMapping("/courses/{id}")
     public ResponseEntity<Course> updateCourse(@PathVariable(value = "id", required = false) final Long id, @RequestBody Course course)
         throws URISyntaxException {
@@ -66,12 +77,23 @@ public class CourseResource {
             .body(result);
     }
 
+
+    /**
+     * get all course
+     * @return
+     */
     @GetMapping("/courses")
     public List<Course> getAllCourses() {
         log.debug("REST request to get all Courses");
         return courseService.findAll();
     }
 
+
+    /**
+     * get course by id
+     * @param id
+     * @return
+     */
     @GetMapping("/courses/{id}")
     public ResponseEntity<Course> getCourse(@PathVariable Long id) {
         log.debug("REST request to get Course : {}", id);
@@ -79,6 +101,12 @@ public class CourseResource {
         return ResponseEntity.ok(course.get());
     }
 
+
+    /**
+     * delete a course
+     * @param id
+     * @return boif
+     */
     @DeleteMapping("/courses/{id}")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
         log.debug("REST request to delete Course : {}", id);

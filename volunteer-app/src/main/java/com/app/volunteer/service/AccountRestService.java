@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is responsible for connect with account server
+ */
 @Service
 @AllArgsConstructor
 public class AccountRestService {
@@ -23,6 +26,11 @@ public class AccountRestService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
 
+    /**
+     * save invoice with acoount applicaiton
+     * @param invoice
+     * @return  a invoice
+     */
     public Invoice saveInvoice(Invoice invoice){
         try {
             Invoice invoice1 = restTemplate.postForObject(Constraints.ACCOUNT_URL + "/api/invoices", invoice, Invoice.class);
@@ -36,6 +44,10 @@ public class AccountRestService {
     }
 
 
+    /**
+     * list of invoice by volunteer
+     * @return list of invoice
+     */
     public List<Invoice> getInvoiceListByVolunteerId(){
         try {
             Boolean isRoleAccount = jwtTokenProvider.isRoleExist("ROLE_ACCOUNT");
@@ -56,12 +68,15 @@ public class AccountRestService {
         }
     }
 
-
+    /**
+     * get invoice by volunteerId and invoice No
+     * @param volunteerId
+     * @param invoiceNo
+     * @return
+     */
     public Invoice getInvoiceByVolunteerIdAndId(Long volunteerId, String invoiceNo){
         try {
             String url = Constraints.ACCOUNT_URL + "/api/volunteer-invoices-by-invoice-id-and-volunteer-id?volunteerId=" + volunteerId + "&invoiceNo=" + invoiceNo;
-
-            System.out.println(url);
             Invoice invoice = restTemplate.getForObject(url, Invoice.class);
             return invoice;
         }catch (HttpStatusCodeException ex){
@@ -74,6 +89,12 @@ public class AccountRestService {
     }
 
 
+    /**
+     * payment by invoice no
+     * @param amount
+     * @param invoiceNo
+     * @return a boolean
+     */
     public boolean getPayment(Double amount, String invoiceNo){
         try {
             String url = Constraints.ACCOUNT_URL + "/api/payment?amount=" + amount + "&invoiceNo=" + invoiceNo;
@@ -88,7 +109,11 @@ public class AccountRestService {
         }
     }
 
-
+    /**
+     * invoice eligibility
+     * @param volunteerId
+     * @return a boolean object
+     */
     public boolean isPermitForGraduate(Long volunteerId){
         try {
             String url = Constraints.ACCOUNT_URL + "/api/graduate-eligibility?volunteerId=" + volunteerId;

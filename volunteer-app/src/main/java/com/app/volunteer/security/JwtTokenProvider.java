@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.app.volunteer.exception.CustomException;
 import com.app.volunteer.model.UserRole;
 import com.app.volunteer.model.Users;
-import com.app.volunteer.model.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;

@@ -23,9 +23,7 @@ import java.util.Optional;
 public class VolunteerResource {
 
     private final Logger log = LoggerFactory.getLogger(VolunteerResource.class);
-
     private final VolunteerService volunteerService;
-
     private final VolunteerRepository volunteerRepository;
 
     public VolunteerResource(VolunteerService volunteerService, VolunteerRepository volunteerRepository) {
@@ -33,6 +31,13 @@ public class VolunteerResource {
         this.volunteerRepository = volunteerRepository;
     }
 
+    /**
+     * update volunteer
+     * @param id
+     * @param volunteer
+     * @return
+     * @throws URISyntaxException
+     */
     @PutMapping("/volunteers/{id}")
     public ResponseEntity<Volunteer> updateVolunteer(
         @PathVariable(value = "id", required = false) final Long id,
@@ -57,12 +62,23 @@ public class VolunteerResource {
     }
 
 
+    /**
+     * get volunteer with current user
+     * @param httpServletRequest
+     * @return a single volunteer
+     */
     @GetMapping("/volunteers-by-user")
     public Volunteer getVolunteers(HttpServletRequest httpServletRequest) {
         log.debug("REST request to get all Volunteers");
         return volunteerService.findByUserId(httpServletRequest);
     }
 
+
+    /**
+     * get volunteer with id
+     * @param id
+     * @return
+     */
     @GetMapping("/volunteers/{id}")
     public ResponseEntity<Volunteer> getVolunteer(@PathVariable Long id) {
         log.debug("REST request to get Volunteer : {}", id);

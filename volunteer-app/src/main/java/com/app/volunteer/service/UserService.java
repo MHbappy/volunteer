@@ -45,12 +45,16 @@ public class UserService {
   private final ModelMapper modelMapper;
   private final RestTemplate restTemplate;
 
+  /**
+   * sign in with email and password and return a jwt token
+   * @param email
+   * @param password
+   * @return
+   */
   public String signin(String email, String password) {
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-
       Users appUser = userRepository.findByEmail(email);
-
       return jwtTokenProvider.createToken(email, appUser);
     } catch (AuthenticationException e) {
       e.printStackTrace();
@@ -58,6 +62,11 @@ public class UserService {
     }
   }
 
+  /**
+   * sign up with username, password
+   * @param appUser
+   * @return
+   */
   public String signup(Users appUser) {
     if (!userRepository.existsByEmail(appUser.getEmail())) {
       appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
@@ -68,6 +77,11 @@ public class UserService {
     }
   }
 
+  /**
+   * sign up with username password and volunteer information
+   * @param dataDTO
+   * @return
+   */
   @Transactional
   public String signupWithVolunteer(UserDataDTO dataDTO) {
     Users appUser =  modelMapper.map(dataDTO, Users.class);
@@ -90,6 +104,7 @@ public class UserService {
       VolunteerInfo volunteerInfo = new VolunteerInfo();
       volunteerInfo.setVolunteerId(volunteer1.getId());
 
+      //when register a volunteer, there will create two more account with book server and account server
       Boolean acCreatedAccount = restTemplate.postForObject(Constraints.ACCOUNT_URL + "/api/account/register/" + volunteer1.getId(), null, Boolean.class);
       Boolean acCreatedLibrary = restTemplate.postForObject(Constraints.LIBRARY_URL + "/api/library/register/" + volunteer1.getId(), null, Boolean.class);
       log.info("created acoount on library server " + acCreatedAccount);
@@ -101,10 +116,12 @@ public class UserService {
     }
   }
 
-  public void delete(String email) {
-    userRepository.deleteByEmail(email);
-  }
 
+  /**
+   * get user by email
+   * @param email
+   * @return
+   */
   public Users search(String email) {
     Users appUser = userRepository.findByEmail(email);
     if (appUser == null) {
@@ -113,16 +130,19 @@ public class UserService {
     return appUser;
   }
 
-
-  public Users searchWithOutException(String email) {
-    Users appUser = userRepository.findByEmail(email);
-    return appUser;
-  }
-
+  /**
+   * current user information
+   * @param
+   * @return
+   */
   public Users whoami(HttpServletRequest req) {
     return userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
   }
 
+  /**
+   * current volunteer information
+   * @return
+   */
   public Volunteer getVolunteerByCurrentUser(){
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String currentPrincipalName = authentication.getName();
@@ -132,11 +152,6 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This is have no volunteer account");
     }
     return volunteer;
-  }
-
-
-  public String refresh(String email) {
-    return jwtTokenProvider.createToken(email, userRepository.findByEmail(email));
   }
 
 }

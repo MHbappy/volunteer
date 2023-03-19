@@ -11,7 +11,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -20,7 +19,7 @@ import java.util.Arrays;
 public class VolunteerApplication implements CommandLineRunner {
 
 	@Autowired
-	UserService userService;
+	private UserService userService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(VolunteerApplication.class, args);
@@ -37,7 +36,11 @@ public class VolunteerApplication implements CommandLineRunner {
 		return restTemplate;
 	}
 
-
+	/**
+	 * create default user
+	 * @param params
+	 * @throws Exception
+	 */
 	@Override
 	public void run(String... params) throws Exception {
 		Users volunteer = null;
@@ -47,13 +50,9 @@ public class VolunteerApplication implements CommandLineRunner {
 			volunteer = userService.search("volunteer@localhost");
 			librarian = userService.search("librarian@localhost");
 			account = userService.search("library@localhost");
-
 		}catch (Exception ex){
 			ex.printStackTrace();
-
 		}
-
-
 		if (volunteer == null){
 			Users admin = new Users();
 			admin.setPassword("123456");
@@ -77,10 +76,5 @@ public class VolunteerApplication implements CommandLineRunner {
 			client.setAppUserRoles(new ArrayList<UserRole>(Arrays.asList(UserRole.ACCOUNT)));
 			userService.signup(client);
 		}
-
-
-
 	}
-
-
 }

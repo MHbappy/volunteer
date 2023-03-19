@@ -1,6 +1,5 @@
 package com.app.volunteer.security;
 
-import com.app.volunteer.model.Roles;
 import com.app.volunteer.model.UserRole;
 import com.app.volunteer.model.Users;
 import com.app.volunteer.repository.UserRepository;

@@ -2,7 +2,6 @@ package com.app.volunteer.service;
 
 import com.app.volunteer.config.Constraints;
 import com.app.volunteer.dto.VolunteerInfo;
-import com.app.volunteer.dto.account.Invoice;
 import com.app.volunteer.dto.library.Book;
 import com.app.volunteer.dto.library.BookRequesetDto;
 import com.app.volunteer.enumuration.BookStatus;
@@ -17,10 +16,12 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is responsible for connect with library -application
+ */
 @Service
 @AllArgsConstructor
 public class BookRestService {
@@ -29,6 +30,11 @@ public class BookRestService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
 
+    /**
+     * save borrowed book
+     * @param bookRequesetDto
+     * @return a book
+     */
     public Book saveBook(BookRequesetDto bookRequesetDto){
         Volunteer volunteer = userService.getVolunteerByCurrentUser();
         Book book = new Book();
@@ -41,8 +47,6 @@ public class BookRestService {
         book.setVolunteerInfo(new VolunteerInfo(null, volunteer.getId()));
         try {
             String url = Constraints.LIBRARY_URL + "/api/books";
-            System.out.println(url);
-
             Book book1 = restTemplate.postForObject(Constraints.LIBRARY_URL + "/api/books", book, Book.class);
             return book1;
         }catch (HttpStatusCodeException ex){
@@ -54,13 +58,15 @@ public class BookRestService {
         }
     }
 
+    /**
+     * get all book by volunteer Id
+     * @return a list of book
+     */
     public List<Book> getAllBooksByVolunteerId(){
         Boolean isRoleLibrarian = jwtTokenProvider.isRoleExist("ROLE_LIBRARIAN");
-        List<Book> books = new ArrayList<>();
         if (isRoleLibrarian){
             return restTemplate.getForObject(Constraints.LIBRARY_URL + "/api/books", List.class);
         }
-
         Volunteer volunteer = userService.getVolunteerByCurrentUser();
         if (volunteer == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volunteer not found");

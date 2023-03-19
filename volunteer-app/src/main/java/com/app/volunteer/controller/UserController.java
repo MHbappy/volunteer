@@ -25,6 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
   private final UserService userService;
 
+  /**
+   * sign in
+   * @param username
+   * @param password
+   * @return jwt token
+   */
   @PostMapping("/signin")
   public String login(
        @RequestParam String username,
@@ -32,6 +38,11 @@ public class UserController {
     return userService.signin(username, password);
   }
 
+  /**
+   * sign up with for vol unteer
+   * @param user
+   * @return jwt token
+   */
   @PostMapping("/signup")
   public String signup(@RequestBody @Valid UserDataDTO user) {
     return userService.signupWithVolunteer(user);

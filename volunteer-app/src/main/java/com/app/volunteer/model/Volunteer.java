@@ -1,11 +1,6 @@
 package com.app.volunteer.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.security.core.userdetails.User;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
