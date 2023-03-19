@@ -105,7 +105,7 @@ public class CourseResource {
     /**
      * delete a course
      * @param id
-     * @return boif
+     * @return void
      */
     @DeleteMapping("/courses/{id}")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {

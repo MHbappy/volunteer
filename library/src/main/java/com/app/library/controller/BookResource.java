@@ -1,5 +1,6 @@
 package com.app.library.controller;
 
+import com.app.library.enumuration.BookStatus;
 import com.app.library.model.Book;
 import com.app.library.service.BookService;
 import lombok.AllArgsConstructor;
@@ -70,6 +71,23 @@ public class BookResource {
         log.debug("REST request to get Book : {}", id);
         Optional<Book> book = bookService.findOne(id);
         return ResponseEntity.ok(book.get());
+    }
+
+    /**
+     * return book return
+     * @param bookId
+     * @return
+     */
+    @PostMapping("/return-book")
+    public ResponseEntity<Boolean> changeBookStatus(@RequestParam Long bookId) {
+        log.debug("REST request to get Book : {}", bookId);
+        Optional<Book> book = bookService.findOne(bookId);
+        if (!book.isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book is not found");
+        }
+        book.get().setBookStatus(BookStatus.RETURNED);
+        bookService.save(book.get());
+        return ResponseEntity.ok(true);
     }
 
 }

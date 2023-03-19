@@ -1,0 +1,24 @@
+Volunteer:
+
+Library:
+
+Account:
+
+***Must be run every application for show exact resut.
+
+1. Create account: when create account then this three application will be affected. register time 4 table will be affected in the three applications.
+Volunteer: USERS, USER_APP_USERS_ROLE, VOLUNTEER
+Library: VOLUNTEER_INFO
+Account: VOLUNTEER_INFO
+Flow: volunteer server -> account server
+2. Create Course: Create course. COURSE table will be affected from volunteer database;
+3. Edit profile: VOLUNTEER and volunteer will be affected.
+4. Invoice create: when volunteer enrole a course or late book then a invoice will be generate
+Course Enrole Flow:  volunteer server -> account server
+Late Book Flow: Book server -> account server
+5. Book search: Search book by there name and can borrow. BOOK table will be affected from Library Server.
+****Every method is commented out. If you don't understand, please let me know.
+
+
+
+

@@ -36,4 +36,9 @@ public class BookRestTemplateResource {
     public List<Book> getBookList(){
         return bookRestService.getAllBooksByVolunteerId();
     }
+
+    @PostMapping("/return-book")
+    public Boolean getBookList(@RequestParam Long bookId){
+        return bookRestService.returnBook(bookId);
+    }
 }

@@ -74,4 +74,19 @@ public class BookRestService {
         return restTemplate.getForObject(Constraints.LIBRARY_URL + "/api/books-by-volunteer?volunteerId="+volunteer.getId(), List.class);
     }
 
+
+    public boolean returnBook(Long bookId){
+        try {
+            String url = Constraints.LIBRARY_URL + "/api/return-book?bookId=" +bookId;
+            Boolean isPayment = restTemplate.postForObject(url, null, Boolean.class);
+            return isPayment;
+        }catch (HttpStatusCodeException ex){
+            ex.printStackTrace();
+            JsonParser springParser = JsonParserFactory.getJsonParser();
+            Map< String, Object > map = springParser.parseMap(ex.getResponseBodyAsString());
+            String message = (String) map.get("message");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+        }
+    }
+
 }
