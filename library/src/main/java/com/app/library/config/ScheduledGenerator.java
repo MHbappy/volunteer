@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.UUID;
 
+
+
 @EnableAsync
 @Component
 public class ScheduledGenerator {
@@ -26,8 +28,11 @@ public class ScheduledGenerator {
     @Autowired
     private AccountRestService accountRestService;
 
-//    @Async
-//    @Scheduled(fixedRate = 5000)
+    /**
+     * Every 30 second, check is there any late book. If there have any late book then create a invoice for payment.
+     */
+    @Async
+    @Scheduled(fixedRate = 30000)
     public void scheduleFixedRateTaskAsync() throws InterruptedException {
         System.out.println("Fixed rate task async - " + System.currentTimeMillis() / 1000);
         List<Book> bookList = bookRepository.getAllLateBook();
@@ -44,7 +49,7 @@ public class ScheduledGenerator {
             invoice.setAmount(2d);
             invoice.setBookCourseId(book.getId());
             invoice.setInvoiceType(InvoiceType.PENDING);
-            invoice.setVolunteerInfo(new VolunteerInfo(0l, invoice.getVolunteerInfo().getVolunteerId()));
+            invoice.setVolunteerInfo(new VolunteerInfo(0l, book.getVolunteerInfo().getVolunteerId()));
             accountRestService.saveInvoice(invoice);
         }
     }

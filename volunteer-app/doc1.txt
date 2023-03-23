@@ -1,0 +1,112 @@
+1. From VOLUNTEER server, please see the package "com.app.volunteer.security". Here I am using jwt token based authentication.
+Here all code responsible for security
+
+4. When student create it will request to localhost:8080/users/signup
+    a. VOLUNTEER SERVER -> controller -> UsreController -> signup() [controller]
+    b. VOLUNTEER SERVER -> controller -> UserService -> signupWithVolunteer(). In this method, I have connected
+    with these two server(library and account). And sent a request for create two account for library and account server.
+
+    code like
+          //when register a volunteer, there will create two more account with book server and account server
+          Boolean acCreatedAccount = restTemplate.postForObject(Constraints.ACCOUNT_URL + "/api/account/register/" + volunteer1.getId(), null, Boolean.class);
+          Boolean acCreatedLibrary = restTemplate.postForObject(Constraints.LIBRARY_URL + "/api/library/register/" + volunteer1.getId(), null, Boolean.class);
+          log.info("created acoount on library server " + acCreatedAccount);
+          log.info("created acoount on library server " + acCreatedLibrary);
+
+5. You can see every application have model package name is
+    a. "com.app.volunteer.model"
+    b. "com.app.library.model"
+    c. "com.app.account.model"
+
+    and have the controller:
+    a. "com.app.volunteer.controller"
+    b. "com.app.library.controller"
+    c. "com.app.account.controller"
+
+    and view as json.
+
+    So, this follow MVC pattern.
+
+
+6. Technology stack
+    a. spring boot and mysql (backend)
+    c. html, css, react js (front end)
+
+7.  VOLUNTEER SERVER -> controller -> UserService -> signupWithVolunteer(). In this method, I have connected
+        with these two server(library and account). And sent a request for create two account for library and account server.
+        code like
+      //when register a volunteer, there will create two more account with book server and account server
+      Boolean acCreatedAccount = restTemplate.postForObject(Constraints.ACCOUNT_URL + "/api/account/register/" + volunteer1.getId(), null, Boolean.class);
+      Boolean acCreatedLibrary = restTemplate.postForObject(Constraints.LIBRARY_URL + "/api/library/register/" + volunteer1.getId(), null, Boolean.class);
+      log.info("created acoount on library server " + acCreatedAccount);
+      log.info("created acoount on library server " + acCreatedLibrary);
+8. please see
+    VOLLUNTEER SERVER:
+        All File : AccountRestTemplateResource, BookRestTemplateResource, BookRestService, AccountRestService
+    LIBRARY SERVER:
+        All File: AccountRestService
+
+    These all classes are responsible for connecting with account server and every methods are comment out. please see this.
+
+
+9. Here is using maven, so pom.xml is responsible for managing the dependency.
+
+10. Every service, controller and other config file are using dependency injection. For inject dependency with "@AllArgsConstructor" used
+instead of @Autowire. Because, creating the constructor we can inject a object.
+
+@RestController
+@RequestMapping("/api")
+@AllArgsConstructor
+public class BookResource {
+    private final BookService bookService;
+}
+
+11. I have intgrated and connected all service by RestTemplate.
+
+12. config: Contraint or global configuration
+    controller: All api end point are here
+    dto: Data transfer object. modify response or request.
+    enumuration: All enum is here.
+    exception: Custom an global exception defined here.
+    model: database entity
+    repository: Responsible for database query
+    security: jwt token based authentication
+    service: every business logic here.
+
+
+13. I have created soap service and tested it.
+
+14. every code is comment out. So, please see the code.
+
+15. please show FrontEndApplication > config > baseUrl.js. Here I have connected front end with backend.
+
+16. I have dockerized all application. every server have three files for docker.
+    please see the step from these three file
+    name : Dockerfile
+           create-package.sh
+           docker-compose.yml
+
+    1. sh create-package.sh
+    2. docker build .
+    3. docker-compose up
+
+
+17. http://openlibrary.org/search.json
+ code : FrontEndApplicaiton -> bookResourseApi.js
+  ***I have used http://openlibrary.org/search.json for search book
+
+
+
+18. please show application.properties.
+spring.datasource.url=jdbc:mysql://library-db:3306/library
+spring.datasource.username=root
+spring.datasource.password=1243
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+19. There have many ways to reset database base. The easiest way is delete the database and create it.
+
+
+
+
+
+

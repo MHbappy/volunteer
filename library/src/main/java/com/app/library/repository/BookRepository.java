@@ -13,7 +13,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     List<Book> findAllByVolunteerInfo(VolunteerInfo volunteerInfo);
 
-    @Query(nativeQuery = true, value = "select * from book where return_datetime > NOW() AND book_status = 'BORROWED'")
+    @Query(nativeQuery = true, value = "select * from book where return_datetime < NOW() AND book_status = 'BORROWED'")
     List<Book> getAllLateBook();
 
 }
